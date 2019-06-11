@@ -25,17 +25,62 @@ function backup() {
 
     chrome.storage.sync.set(backupName, function () {
       $("#tabFavourites").append(sHtml);
-      
+
       document.getElementById("favTabRestore".concat(rowID)).addEventListener("click", restoreTabs.bind(null, rowID), false);
       document.getElementById("favTabEdit".concat(rowID)).addEventListener("click", editRow.bind(null, rowID), false);
       document.getElementById("favTabSave".concat(rowID)).addEventListener("click", saveRow.bind(null, rowID), false);
       document.getElementById("favTabDelete".concat(rowID)).addEventListener("click", deleteRow.bind(null, rowID), false);
-      
+
       $('#msg').html('Backup Completed!!');
       $('#alert').show();
       newRow++;
     });
   });
+}
+
+/**
+ * Restore all stored tab URLs in a new browser window.
+ *
+ */
+function restoreTabs(rowID) {
+  var backupName = [];
+  backupName.push(getBackupName(rowID));
+  chrome.storage.sync.get(backupName, function (result) {
+    chrome.windows.create({ url: result[Object.keys(result)[0]], state: "maximized" }, function (window) {
+      var x = document.getElementById("alert");
+      document.getElementById('msg').innerHTML = 'All tabs restored in a new window';
+      if (x.style.display === "" || x.style.display === "none") {
+        x.style.display = "block";
+      }
+    });
+  });
+}
+
+/**
+ * Get all the window URLs.
+ *
+ * @param {function(string)} callback
+ */
+function getCurrentWindowUrls(callback) {
+  var queryInfo = {
+    currentWindow: true
+  };
+
+  chrome.tabs.query(queryInfo, function (tabs) {
+    var i, tab;
+    var urls = [];
+
+    for (i = 0; i < tabs.length; i++) {
+      tab = tabs[i];
+      urls[i] = tab.url;
+      console.log(encodeURIComponent(urls[i]));
+    }
+    callback(urls);
+  });
+}
+
+function closeBtn() {
+  $("#alert").hide();
 }
 
 function editRow(rowID) {
@@ -58,48 +103,4 @@ function deleteRow(rowID) {
 
 function getBackupName(rowID) {
   return "Backup".concat(rowID);
-}
-
-/**
- * Restore all stored tab URLs in a new browser window.
- *
- */
-function restoreTabs(rowID) {
-  var backupName = [];
-  backupName.push(getBackupName(rowID));
-  chrome.storage.sync.get(backupName, function (result) {
-    chrome.windows.create({ url: result[Object.keys(result)[0]], state: "maximized" }, function (window) {
-      var x = document.getElementById("alert");
-      document.getElementById('msg').innerHTML = 'All tabs restored in a new window';
-      if (x.style.display === "" || x.style.display === "none") {
-        x.style.display = "block";
-      }
-    });
-  });
-}
-
-function closeBtn() {
-  $("#alert").hide();
-}
-/**
- * Get all the window URLs.
- *
- * @param {function(string)} callback
- */
-function getCurrentWindowUrls(callback) {
-  var queryInfo = {
-    currentWindow: true
-  };
-
-  chrome.tabs.query(queryInfo, function (tabs) {
-    var i, tab;
-    var urls = [];
-
-    for (i = 0; i < tabs.length; i++) {
-      tab = tabs[i];
-      urls[i] = tab.url;
-      console.log(encodeURIComponent(urls[i]));
-    }
-    callback(urls);
-  });
 }
