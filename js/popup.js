@@ -2,7 +2,6 @@
 var newRow = 1;
 
 document.getElementById("backUp").addEventListener("click", backup);
-
 document.getElementById("alert").addEventListener("click", closeBtn);
 
 /**
@@ -21,8 +20,10 @@ function backup() {
     "</tr>";
 
   getCurrentWindowUrls(function (urls) {
-    var backupName = getBackupName(rowID);
-    chrome.storage.sync.set({ backupName: urls }, function () {
+    var backupName = {};
+    backupName[getBackupName(rowID)] = urls;
+
+    chrome.storage.sync.set(backupName, function () {
       $("#tabFavourites").append(sHtml);
       
       document.getElementById("favTabRestore".concat(rowID)).addEventListener("click", restoreTabs.bind(null, rowID), false);
@@ -64,9 +65,10 @@ function getBackupName(rowID) {
  *
  */
 function restoreTabs(rowID) {
-  var backupName = getBackupName(rowID);
-  chrome.storage.sync.get([backupName], function (result) {
-    chrome.windows.create({ url: result.urls, state: "maximized" }, function (window) {
+  var backupName = [];
+  backupName.push(getBackupName(rowID));
+  chrome.storage.sync.get(backupName, function (result) {
+    chrome.windows.create({ url: result[Object.keys(result)[0]], state: "maximized" }, function (window) {
       var x = document.getElementById("alert");
       document.getElementById('msg').innerHTML = 'All tabs restored in a new window';
       if (x.style.display === "" || x.style.display === "none") {
