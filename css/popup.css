@@ -1,3 +1,9 @@
+.buttonPanel {
+  display:  flex;
+  justify-content: space-around;
+  margin-bottom: 5px;
+}
+
 .btn {
   /* default for <button>, but useful for <a> */
   display: inline-block;
@@ -72,4 +78,10 @@
 
 .closebtn:hover {
   color: black;
+}
+
+caption {
+  font-weight: bold;
+  font-size: 1rem;
+  background-color: #f2f2f2;
 }
