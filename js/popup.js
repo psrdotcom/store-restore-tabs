@@ -15,12 +15,8 @@ port.onMessage.addListener(function (msg) {
         var tabdata = dataList[Object.keys(dataList)[i]];
         rowID = tabdata.id;
         newRow = rowID + 1;
-        // TODO: Refactor to global method
         $("#tabFavourites").append(createRow(rowID, tabdata.name));
-        document.getElementById("favTabRestore".concat(rowID)).addEventListener("click", restoreTabs.bind(null, rowID), false);
-        document.getElementById("favTabEdit".concat(rowID)).addEventListener("click", editRow.bind(null, rowID), false);
-        document.getElementById("favTabSave".concat(rowID)).addEventListener("click", saveRow.bind(null, rowID), false);
-        document.getElementById("favTabDelete".concat(rowID)).addEventListener("click", deleteRow.bind(null, rowID), false);
+        addRowItemEventListeners(rowID);
       }
       break;
 
@@ -29,13 +25,25 @@ port.onMessage.addListener(function (msg) {
   }
 });
 
-document.addEventListener('DOMContentLoaded', function () {  
+// When page loads add form UI event listeners
+document.addEventListener('DOMContentLoaded', function () {
   // event listener for the buttons inside popup window
   document.getElementById("backUp").addEventListener("click", backup);
   document.getElementById("clearall").addEventListener("click", clearall);
   document.getElementById("alert").addEventListener("click", closeBtn);
 });
 
+/*
+* Add table row item event listeners
+*
+* @param rorwID the row id of the table
+*/
+function addRowItemEventListeners(rowID) {
+  document.getElementById("favTabRestore".concat(rowID)).addEventListener("click", restoreTabs.bind(null, rowID), false);
+  document.getElementById("favTabEdit".concat(rowID)).addEventListener("click", editRow.bind(null, rowID), false);
+  document.getElementById("favTabSave".concat(rowID)).addEventListener("click", saveRow.bind(null, rowID), false);
+  document.getElementById("favTabDelete".concat(rowID)).addEventListener("click", deleteRow.bind(null, rowID), false);
+}
 
 /**
  * Store all browser window tab URLs.
@@ -47,17 +55,13 @@ function backup() {
 
   getCurrentWindowUrls(function (urls) {
     var backupName = { id: rowID, name: getBackupName(rowID), urls: urls };
-    //backupName[getBackupName(rowID)] = urls;
-    //dataList.push(backupName);
-    dataList[getBackupName(rowID)] = backupName;
 
+    dataList[getBackupName(rowID)] = backupName;
+    
+    // Store the data
     chrome.storage.sync.set({ dataList }, function () {
       $("#tabFavourites").append(sHtml);
-      // TODO: refactor to global method
-      document.getElementById("favTabRestore".concat(rowID)).addEventListener("click", restoreTabs.bind(null, rowID), false);
-      document.getElementById("favTabEdit".concat(rowID)).addEventListener("click", editRow.bind(null, rowID), false);
-      document.getElementById("favTabSave".concat(rowID)).addEventListener("click", saveRow.bind(null, rowID), false);
-      document.getElementById("favTabDelete".concat(rowID)).addEventListener("click", deleteRow.bind(null, rowID), false);
+      addRowItemEventListeners(rowID);
 
       $('#msg').html('Backup Completed!!');
       $('#alert').show();
@@ -66,11 +70,18 @@ function backup() {
   });
 }
 
+/*
+*  Clear all the stored data and reset the form
+*/
 function clearall() {
   chrome.storage.sync.clear(function () {
+    dataList = {};
+    newRow = 1;
+    // Remove UI also
+    $("#tabFavourites > tbody").html("");
+
     $('#msg').html('All data has been cleared!!');
     $('#alert').show();
-    //TODO: Remove UI also $('#row' + rowID).remove();
   });
 }
 
@@ -98,16 +109,10 @@ function restoreTabs(rowID) {
   //TODO: check for undefined
   var backupName = [];
   backupName.push(getBackupName(rowID));
-  //chrome.storage.sync.get({list:[]}, function (result) {
   chrome.storage.sync.get(dataList[getBackupName(rowID)], function (result) {
-    console.log(result);
-    //chrome.windows.create({ url: result.list[rowID-1].urls, state: "maximized" }, function (window) {
     chrome.windows.create({ url: result.urls, state: "maximized" }, function (window) {
-      var x = document.getElementById("alert");
-      document.getElementById('msg').innerHTML = 'All tabs restored in a new window';
-      if (x.style.display === "" || x.style.display === "none") {
-        x.style.display = "block";
-      } //TODO: use .show()
+      $('#msg').html('All tabs restored in a new window');
+      $('#alert').show();
     });
   });
 }
@@ -135,10 +140,17 @@ function getCurrentWindowUrls(callback) {
   });
 }
 
+/*
+*  Close button functionality
+*/
 function closeBtn() {
   $("#alert").hide();
 }
 
+/*
+*  Edit the table row functionality
+*  @param rowID the table row id
+*/
 function editRow(rowID) {
   //TODO: check for undefined
   $('#favTabName' + rowID).prop("disabled", false);
@@ -146,14 +158,27 @@ function editRow(rowID) {
   $('#favTabSave' + rowID).show();
 }
 
+/*
+*  Save buuton functionality
+*  @param rowID the table row id
+*/
 function saveRow(rowID) {
   //TODO: check for undefined
   $('#favTabName' + rowID).prop("disabled", true);
   $('#favTabSave' + rowID).hide();
   $('#favTabEdit' + rowID).show();
-  //TODO: Update name in datalist and save in sync
+  // Update name in datalist and save in sync
+  dataList[getBackupName(rowID)].name = $('#favTabName' + rowID).val();
+  chrome.storage.sync.set({ dataList }, function () {
+    $('#msg').html('Data Saved!!');
+    $('#alert').show();
+  });
 }
 
+/*
+*  Delete the row
+*  @param rowID the table row id
+*/
 function deleteRow(rowID) {
   //TODO: check for undefined
   chrome.storage.sync.remove(getBackupName(rowID), function () {
@@ -161,6 +186,10 @@ function deleteRow(rowID) {
   });
 }
 
+/*
+*  Form the backup name
+*  @param rowID the table row id
+*/
 function getBackupName(rowID) {
   //TODO: check for undefined
   return "Backup".concat(rowID);
