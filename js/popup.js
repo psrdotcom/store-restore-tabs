@@ -182,7 +182,12 @@ function saveRow(rowID) {
 function deleteRow(rowID) {
   //TODO: check for undefined
   chrome.storage.sync.remove(getBackupName(rowID), function () {
+    delete dataList[getBackupName(rowID)];
     $('#row' + rowID).remove();
+    chrome.storage.sync.set({ dataList }, function () {
+      $('#msg').html('URL Collection Removed!!');
+      $('#alert').show();
+    });
   });
 }
 
