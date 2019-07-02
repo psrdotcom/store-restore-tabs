@@ -13,8 +13,9 @@ port.onMessage.addListener(function (msg) {
       dataList = msg.NAME;
       for (var i = 0; i < Object.keys(dataList).length; i++) {
         var tabdata = dataList[Object.keys(dataList)[i]];
+        
         rowID = tabdata.id;
-        newRow = rowID + 1;
+        newRow = (newRow > rowID) ? newRow : (rowID + 1);
         $("#tabFavourites").append(createRow(rowID, tabdata.name));
         addRowItemEventListeners(rowID);
       }
@@ -52,7 +53,7 @@ function addRowItemEventListeners(rowID) {
 function backup() {
   var rowID = newRow;
   var sHtml = createRow(rowID);
-
+  
   getCurrentWindowUrls(function (urls) {
     var backupName = { id: rowID, name: getBackupName(rowID), urls: urls };
 
