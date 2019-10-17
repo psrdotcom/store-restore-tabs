@@ -93,11 +93,11 @@ function createRow(rowID, name) {
   }
 
   return "<tr id='row" + rowID + "'>" +
-    "<td><i id=\"favTabRestore" + rowID + "\" class='material-icons'>tab</i>&nbsp;" +
+    "<td><i id=\"favTabRestore" + rowID + "\" class='material-icons' title='Tabs Restore'>tab</i>&nbsp;" + "</td>" +
     "<td id=\"favTab" + rowID + "\">" + "<input type='text' value=\"" + name + "\" id=\"favTabName" + rowID + "\" disabled='true' />" + "</td>" +
-    "<td><i id=\"favTabEdit" + rowID + "\" class='material-icons'>edit</i>&nbsp;" +
-    "<i id=\"favTabSave" + rowID + "\" class='material-icons' style=\"display:none\;\">save</i>&nbsp;" +
-    "<i id=\"favTabDelete" + rowID + "\" class='material-icons'>delete</i>" +
+    "<td><i id=\"favTabEdit" + rowID + "\" class='material-icons' title='Edit'>edit</i>&nbsp;" +
+    "<i id=\"favTabSave" + rowID + "\" class='material-icons' title='Save' style=\"display:none\;\">save</i>&nbsp;" +
+    "<i id=\"favTabDelete" + rowID + "\" class='material-icons' title='Delete'>delete</i>" +
     "</td>" +
     "</tr>";
 }
