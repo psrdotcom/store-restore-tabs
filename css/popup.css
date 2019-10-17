@@ -1,3 +1,9 @@
+h2{
+	text-align: center;
+	color: #FEE715FF;
+	background: #101820FF;
+}
+
 .buttonPanel {
   display:  flex;
   justify-content: space-around;
