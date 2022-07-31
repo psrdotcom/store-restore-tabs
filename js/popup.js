@@ -1,28 +1,22 @@
 'use strict';
-var newRow = 1;
-var dataList = {};
+let newRow = 1;
+let dataList = {};
 
-var port = chrome.extension.connect({
+let port = chrome.extension.connect({
   name: "Data Communication"
 });
+
 port.postMessage("GETDATA");
 port.onMessage.addListener(function (msg) {
-  var rowID;
-  switch (Object.keys(msg)[0]) {
-    case "NAME":
+  let rowID;
+  if (Object.keys(msg)[0] == "NAME") {
       dataList = msg.NAME;
-      for (var i = 0; i < Object.keys(dataList).length; i++) {
-        var tabdata = dataList[Object.keys(dataList)[i]];
-        
+      for(let tabdata of dataList[Object.keys(dataList)]) {
         rowID = tabdata.id;
         newRow = (newRow > rowID) ? newRow : (rowID + 1);
         $("#tabFavourites").append(createRow(rowID, tabdata.name));
         addRowItemEventListeners(rowID);
-      }
-      break;
-
-    default:
-      break;
+    }
   }
 });
 
@@ -51,11 +45,11 @@ function addRowItemEventListeners(rowID) {
  *
  */
 function backup() {
-  var rowID = newRow;
-  var sHtml = createRow(rowID);
+  let rowID = newRow;
+  let sHtml = createRow(rowID);
   
   getCurrentWindowUrls(function (urls) {
-    var backupName = { id: rowID, name: getBackupName(rowID), urls: urls };
+    let backupName = { id: rowID, name: getBackupName(rowID), urls: urls };
 
     dataList[getBackupName(rowID)] = backupName;
     
@@ -108,7 +102,7 @@ function createRow(rowID, name) {
  */
 function restoreTabs(rowID) {
   //TODO: check for undefined
-  var backupName = [];
+  let backupName = [];
   backupName.push(getBackupName(rowID));
   chrome.storage.sync.get(dataList[getBackupName(rowID)], function (result) {
     chrome.windows.create({ url: result.urls, state: "maximized" }, function (window) {
@@ -124,13 +118,13 @@ function restoreTabs(rowID) {
  * @param {function(string)} callback
  */
 function getCurrentWindowUrls(callback) {
-  var queryInfo = {
+  let queryInfo = {
     currentWindow: true
   };
 
   chrome.tabs.query(queryInfo, function (tabs) {
-    var i, tab;
-    var urls = [];
+    let i, tab;
+    let urls = [];
 
     for (i = 0; i < tabs.length; i++) {
       tab = tabs[i];

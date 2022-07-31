@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 
 <head>
+  <title>Store and Restore the tabs</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="./css/popup.css">
-  <script src="./js/jquery-3.4.1.slim.min.js"></script>
+  <script src="./js/jquery-3.6.0.slim.min.js"></script>
 </head>
 
 <body>
@@ -18,9 +19,9 @@
     <strong>Info!</strong>
     <span id="msg" class="msg"></span>
   </div>
-  <table width="300px" id="tabFavourites">
+  <table id="tabFavourites" aria-describedby="Favourite Tabs">
     <thead>
-      <caption> Tab Favs </caption>
+      <tr><th>Tab Favs</th></tr>
     </thead>
     <tbody>
     </tbody>
